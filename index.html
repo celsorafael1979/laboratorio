@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamento de Laboratório</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>LabScheduler</h1>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-target="lab-registration">
+                    <span class="icon">🔬</span> Cadastro de Laboratórios
+                </a>
+                <a href="#" class="nav-item" data-target="semester-registration">
+                    <span class="icon">📅</span> Cadastro de Semestres
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <h2>Sistema de Gestão de Laboratórios</h2>
+                <div class="user-profile">
+                    <div class="avatar">Admin</div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <!-- Cadastro de Laboratório -->
+                <section id="lab-registration" class="page-section active">
+                    <div class="card glass-effect">
+                        <div class="card-header">
+                            <h3>Novo Laboratório</h3>
+                            <p>Cadastre os dados do laboratório</p>
+                        </div>
+                        <form id="form-laboratorio" class="custom-form">
+                            <div class="form-group">
+                                <label for="lab-nome">Nome do Laboratório</label>
+                                <input type="text" id="lab-nome" required placeholder="Ex: Laboratório de Informática 1">
+                            </div>
+                            <div class="form-group">
+                                <label for="lab-local">Local</label>
+                                <input type="text" id="lab-local" required placeholder="Ex: Bloco A, Sala 101">
+                            </div>
+                            <div class="form-group">
+                                <label for="lab-responsavel">Responsável</label>
+                                <input type="text" id="lab-responsavel" required placeholder="Ex: Prof. João Silva">
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Salvar Laboratório</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="card glass-effect mt-4">
+                        <div class="card-header">
+                            <h3>Laboratórios Cadastrados</h3>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table" id="table-laboratorios">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Local</th>
+                                        <th>Responsável</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Dados inseridos via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Cadastro de Semestre -->
+                <section id="semester-registration" class="page-section">
+                    <div class="card glass-effect">
+                        <div class="card-header">
+                            <h3>Novo Semestre</h3>
+                            <p>Defina o período letivo</p>
+                        </div>
+                        <form id="form-semestre" class="custom-form">
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label for="sem-ano">Ano</label>
+                                    <input type="number" id="sem-ano" required min="2020" max="2100" placeholder="Ex: 2026">
+                                </div>
+                                <div class="form-group half">
+                                    <label for="sem-semestre">Semestre</label>
+                                    <select id="sem-semestre" required>
+                                        <option value="1">1º Semestre</option>
+                                        <option value="2">2º Semestre</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label for="sem-data-inicio">Data Inicial</label>
+                                    <input type="date" id="sem-data-inicio" required>
+                                </div>
+                                <div class="form-group half">
+                                    <label for="sem-data-fim">Data Final</label>
+                                    <input type="date" id="sem-data-fim" required>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Salvar Semestre</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="card glass-effect mt-4">
+                        <div class="card-header">
+                            <h3>Semestres Cadastrados</h3>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table" id="table-semestres">
+                                <thead>
+                                    <tr>
+                                        <th>Ano/Semestre</th>
+                                        <th>Data Inicial</th>
+                                        <th>Data Final</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Dados inseridos via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

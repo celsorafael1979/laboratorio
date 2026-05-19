@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Acesso Administrativo - LabScheduler{% endblock %}
+{% block page_title %}Acesso Restrito ao Administrador{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; min-height: 50vh;">
+    <div class="card glass-effect" style="width: 100%; max-width: 400px; padding: 2.5rem; text-align: center; border: 1px solid var(--border-color); animation: fadeIn 0.4s ease-out; background: rgba(15, 23, 42, 0.4); border-radius: 16px; backdrop-filter: blur(12px);">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+        <h3 style="color: var(--accent-color); margin-bottom: 0.5rem; font-size: 1.5rem;">Área Administrativa</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">Digite a senha de administrador para gerenciar laboratórios e semestres.</p>
+        
+        <form method="post" style="display: flex; flex-direction: column; gap: 1.2rem;">
+            {% csrf_token %}
+            <div style="display: flex; flex-direction: column; text-align: left; gap: 0.5rem;">
+                <label for="senha" style="font-size: 0.85rem; color: var(--text-color); font-weight: 500;">Senha de Acesso</label>
+                <input type="password" name="senha" id="senha" placeholder="••••••••" required 
+                       style="width: 100%; padding: 0.8rem; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-color); font-size: 1rem; transition: border-color 0.3s;"
+                       onfocus="this.style.borderColor='var(--accent-color)'"
+                       onblur="this.style.borderColor='var(--border-color)'">
+            </div>
+            
+            <button type="submit" class="btn btn-primary" 
+                    style="width: 100%; padding: 0.8rem; font-size: 1rem; font-weight: bold; background: var(--accent-color); border: none; color: black; border-radius: 8px; cursor: pointer; transition: transform 0.2s, background-color 0.2s;"
+                    onmouseover="this.style.background='#16a34a'"
+                    onmouseout="this.style.background='var(--accent-color)'">
+                Entrar
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

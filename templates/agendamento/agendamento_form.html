@@ -1,0 +1,404 @@
+{% extends "base.html" %}
+
+{% block title %}Agendar - LabScheduler{% endblock %}
+{% block page_title %}Agendar Laboratório{% endblock %}
+
+{% block content %}
+<div class="card glass-effect">
+    <div class="card-header">
+        <h3>Grade Visual de Agendamentos (Semestrais)</h3>
+        <p>Abaixo você pode visualizar a ocupação semanal dos laboratórios.</p>
+    </div>
+    
+    <div class="filter-highlight-box" style="background: rgba(34, 197, 94, 0.1); border: 2px solid #22c55e; padding: 1.25rem; border-radius: 12px; margin: 1rem; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.5rem;">🔍</span>
+            <div>
+                <h4 style="margin: 0; color: #fff; font-size: 1.1rem;">Filtro de Ocupação</h4>
+                <p style="margin: 0; font-size: 0.85rem; color: #aaa;">Selecione o laboratório e semestre para ver os horários reservados.</p>
+            </div>
+        </div>
+        <form method="get" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin: 0;">
+            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                <label style="font-size: 0.75rem; color: #22c55e; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Laboratório</label>
+                <select name="lab" class="form-select" style="min-width: 200px; background: #0f172a; border-color: #22c55e; color: #fff; padding: 0.5rem;">
+                    {% for lab in laboratorios %}
+                    <option value="{{ lab.pk }}" {% if sel_lab == lab.pk|stringformat:"s" %}selected{% endif %}>{{ lab.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                <label style="font-size: 0.75rem; color: #22c55e; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Semestre</label>
+                <select name="sem" class="form-select" style="min-width: 150px; background: #0f172a; border-color: #22c55e; color: #fff; padding: 0.5rem;">
+                    {% for sem in semestres %}
+                    <option value="{{ sem.pk }}" {% if sel_sem == sem.pk|stringformat:"s" %}selected{% endif %}>{{ sem }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                <label style="font-size: 0.75rem; color: #22c55e; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Data de Ref. (Opcional)</label>
+                <input type="date" name="data_ref" value="{{ sel_data_ref }}" class="form-control" style="min-width: 150px; background: #0f172a; border-color: #22c55e; color: #fff; padding: 0.4rem; border-radius: 8px;">
+            </div>
+            <button type="submit" class="btn btn-primary" style="align-self: flex-end; padding: 0.6rem 1.5rem; background: #22c55e; border-color: #22c55e; color: black; font-weight: bold;">Filtrar Grade</button>
+        </form>
+    </div>
+
+    <!-- Tabela de Horários no padrão da imagem -->
+    <div style="overflow-x: auto; margin-bottom: 2rem; margin-top: 1rem;">
+        <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.85rem; background: rgba(0,0,0,0.2);">
+            <thead>
+                <tr style="background: #22c55e; color: black; font-weight: bold;">
+                    <th style="padding: 10px; border: 1px solid #555;">HORÁRIOS</th>
+                    <th style="padding: 10px; border: 1px solid #555;">{{ week_headers.1 }}</th>
+                    <th style="padding: 10px; border: 1px solid #555;">{{ week_headers.2 }}</th>
+                    <th style="padding: 10px; border: 1px solid #555;">{{ week_headers.3 }}</th>
+                    <th style="padding: 10px; border: 1px solid #555;">{{ week_headers.4 }}</th>
+                    <th style="padding: 10px; border: 1px solid #555;">{{ week_headers.5 }}</th>
+                    <th style="padding: 10px; border: 1px solid #555;">{{ week_headers.6 }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Manhã -->
+                {% for row in turnos.manha %}
+                <tr>
+                    <td style="background: black; color: white; padding: 5px; border: 1px solid #555; font-weight: bold; white-space: nowrap;">{{ row.label }}</td>
+                    {% for dia_nome in row.dias %}
+                    <td style="background: white; color: black; border: 1px solid #555; padding: 5px; font-weight: {% if dia_nome != 'livre' %}bold{% else %}normal{% endif %}; {% if dia_nome != 'livre' %}color: var(--danger-color);{% endif %}">{{ dia_nome }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+                <tr><td colspan="7" style="height: 10px; background: rgba(255,255,255,0.1);"></td></tr>
+                
+                <!-- Tarde -->
+                {% for row in turnos.tarde %}
+                <tr>
+                    <td style="background: black; color: white; padding: 5px; border: 1px solid #555; font-weight: bold; white-space: nowrap;">{{ row.label }}</td>
+                    {% for dia_nome in row.dias %}
+                    <td style="background: white; color: black; border: 1px solid #555; padding: 5px; font-weight: {% if dia_nome != 'livre' %}bold{% else %}normal{% endif %}; {% if dia_nome != 'livre' %}color: var(--danger-color);{% endif %}">{{ dia_nome }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+                <tr><td colspan="7" style="height: 10px; background: rgba(255,255,255,0.1);"></td></tr>
+
+                <!-- Noite -->
+                {% for row in turnos.noite %}
+                <tr>
+                    <td style="background: black; color: white; padding: 5px; border: 1px solid #555; font-weight: bold; white-space: nowrap;">{{ row.label }}</td>
+                    {% for dia_nome in row.dias %}
+                    <td style="background: white; color: black; border: 1px solid #555; padding: 5px; font-weight: {% if dia_nome != 'livre' %}bold{% else %}normal{% endif %}; {% if dia_nome != 'livre' %}color: var(--danger-color);{% endif %}">{{ dia_nome }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <hr style="border: 1px solid var(--border-color); margin: 2rem 0;">
+    
+    <div class="card-header" id="form-agendamento-ancora">
+        <h3>Realizar Agendamento</h3>
+    </div>
+    <form method="post" action="{% url 'agendamento_create' %}" class="custom-form mt-4">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="form-errors">
+            {% for error in form.non_field_errors %}
+            <p class="error" style="color: var(--danger-color); margin-bottom: 1rem;">{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div class="form-row">
+            <div class="form-group half">
+                <label for="id_laboratorio">Laboratório</label>
+                {{ form.laboratorio }}
+                {% if form.laboratorio.errors %}<span class="field-error">{{ form.laboratorio.errors.0 }}</span>{% endif %}
+            </div>
+            <div class="form-group half">
+                <label for="id_nome">Nome</label>
+                {{ form.nome }}
+                {% if form.nome.errors %}<span class="field-error">{{ form.nome.errors.0 }}</span>{% endif %}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group half">
+                <label for="id_colegiado">Colegiado (Opcional)</label>
+                {{ form.colegiado }}
+                {% if form.colegiado.errors %}<span class="field-error">{{ form.colegiado.errors.0 }}</span>{% endif %}
+            </div>
+            <div class="form-group half">
+                <label for="id_telefone">Telefone (Opcional)</label>
+                {{ form.telefone }}
+                {% if form.telefone.errors %}<span class="field-error">{{ form.telefone.errors.0 }}</span>{% endif %}
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group half" id="group-tipo">
+                <label for="id_tipo">Tipo de Agendamento</label>
+                {{ form.tipo }}
+                {% if form.tipo.errors %}<span class="field-error">{{ form.tipo.errors.0 }}</span>{% endif %}
+            </div>
+            <div class="form-group half" id="group-data">
+                <label for="id_data_unica">Data (somente se dia específico)</label>
+                {{ form.data_unica }}
+                {% if form.data_unica.errors %}<span class="field-error">{{ form.data_unica.errors.0 }}</span>{% endif %}
+            </div>
+            <div class="form-group half" id="group-semestre" style="display: none;">
+                <label for="id_semestre">Semestre</label>
+                {{ form.semestre }}
+                {% if form.semestre.errors %}<span class="field-error">{{ form.semestre.errors.0 }}</span>{% endif %}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="filtro_dia">Filtrar por Dia da Semana</label>
+            <select id="filtro_dia" class="form-select">
+                <option value="Segunda">Segunda-feira</option>
+                <option value="Terça">Terça-feira</option>
+                <option value="Quarta">Quarta-feira</option>
+                <option value="Quinta">Quinta-feira</option>
+                <option value="Sexta">Sexta-feira</option>
+                <option value="Sábado">Sábado</option>
+            </select>
+        </div>
+
+        <div class="form-group checkbox-list">
+            <label>Horários Disponíveis (Selecione um ou mais)</label>
+            
+            <div id="horarios-turnos" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; background: rgba(15, 23, 42, 0.3); padding: 1rem; border-radius: 12px; border: 1px solid var(--border-color);">
+                <div class="turno-box">
+                    <h4 style="color: var(--accent-color); margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; font-size: 1.1rem; text-align: center;">☀️ Manhã</h4>
+                    <ul id="ul-manha" style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.8rem;"></ul>
+                </div>
+                <div class="turno-box" style="border-left: 1px solid var(--border-color); padding-left: 1rem;">
+                    <h4 style="color: var(--accent-color); margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; font-size: 1.1rem; text-align: center;">🌤️ Tarde</h4>
+                    <ul id="ul-tarde" style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.8rem;"></ul>
+                </div>
+                <div class="turno-box" style="border-left: 1px solid var(--border-color); padding-left: 1rem;">
+                    <h4 style="color: var(--accent-color); margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; font-size: 1.1rem; text-align: center;">🌙 Noite</h4>
+                    <ul id="ul-noite" style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.8rem;"></ul>
+                </div>
+            </div>
+
+            <div id="source-list" style="display: none;">
+                {% for checkbox in form.horarios %}
+                    <li class="horario-item" data-dia="{{ checkbox.choice_label }}">
+                        {{ checkbox.tag }}
+                        <label for="{{ checkbox.id_for_label }}" style="white-space: nowrap; margin-left: 0.5rem;">{{ checkbox.choice_label }}</label>
+                    </li>
+                {% endfor %}
+            </div>
+            {% if form.horarios.errors %}<span class="field-error">{{ form.horarios.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Salvar Agendamento</button>
+        </div>
+    </form>
+</div>
+
+<div class="card glass-effect" style="margin-top: 2rem;">
+    <div class="card-header">
+        <h3>Últimos Agendamentos</h3>
+        <p>Histórico recente das reservas feitas no sistema.</p>
+    </div>
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Laboratório</th>
+                    <th>Responsável</th>
+                    <th>Tipo</th>
+                    <th>Data</th>
+                    <th>Qtd Horários</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ag in agendamentos %}
+                <tr>
+                    <td>{{ ag.laboratorio.nome }}</td>
+                    <td>{{ ag.nome }}</td>
+                    <td>{{ ag.get_tipo_display }}</td>
+                    <td>{% if ag.data_unica %}{{ ag.data_unica|date:"d/m/Y" }}{% else %}Semestral{% endif %}</td>
+                    <td>{{ ag.horarios.count }} horário(s)</td>
+                    <td>
+                        <button type="button" class="btn-details" 
+                                data-lab="{{ ag.laboratorio.nome }}"
+                                data-nome="{{ ag.nome }}"
+                                data-colegiado="{{ ag.colegiado }}"
+                                data-telefone="{{ ag.telefone }}"
+                                data-tipo="{{ ag.get_tipo_display }}"
+                                data-data="{% if ag.data_unica %}{{ ag.data_unica|date:'d/m/Y' }}{% else %}Semestral{% endif %}"
+                                data-horarios="{% for h in ag.horarios.all %}{{ h }}{% if not forloop.last %}, {% endif %}{% endfor %}"
+                                style="padding: 0.3rem 0.6rem; font-size: 0.75rem; background: #0ea5e9; border: none; border-radius: 4px; color: black; cursor: pointer; font-weight: bold; margin-right: 0.5rem; transition: background 0.2s;" 
+                                onmouseover="this.style.background='#0284c7'" 
+                                onmouseout="this.style.background='#0ea5e9'">
+                            Detalhes
+                        </button>
+                        <form method="post" action="{% url 'agendamento_delete' ag.pk %}" style="display:inline; margin:0; padding:0;" onsubmit="return confirm('Deseja realmente excluir este agendamento?');">
+                            {% csrf_token %}
+                            <button type="submit" style="padding: 0.3rem 0.6rem; font-size: 0.75rem; background: #ef4444; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; transition: background 0.2s;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="empty-state">Nenhum agendamento realizado ainda.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Rolar suavemente para o formulário se houver erros
+        const formErrors = document.querySelector('.form-errors') || document.querySelector('.field-error');
+        if (formErrors) {
+            const formAncora = document.getElementById('form-agendamento-ancora');
+            if (formAncora) {
+                formAncora.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        const filtroDia = document.getElementById('filtro_dia');
+        const items = Array.from(document.querySelectorAll('.horario-item'));
+        const sourceList = document.getElementById('source-list');
+        
+        const ulManha = document.getElementById('ul-manha');
+        const ulTarde = document.getElementById('ul-tarde');
+        const ulNoite = document.getElementById('ul-noite');
+
+        // Dynamic form field toggling
+        const tipoRadios = document.querySelectorAll('input[name="tipo"]');
+        const groupData = document.getElementById('group-data');
+        const groupSemestre = document.getElementById('group-semestre');
+
+        function toggleTipoFields() {
+            const selectedTipo = document.querySelector('input[name="tipo"]:checked')?.value;
+            if (selectedTipo === 'semestral') {
+                groupData.style.display = 'none';
+                groupSemestre.style.display = 'block';
+            } else {
+                groupData.style.display = 'block';
+                groupSemestre.style.display = 'none';
+            }
+        }
+
+        tipoRadios.forEach(radio => radio.addEventListener('change', toggleTipoFields));
+        toggleTipoFields(); // Run on load
+
+        function atualizarGrade() {
+            const selected = filtroDia.value;
+            
+            // Move all items back to hidden source container
+            items.forEach(item => {
+                item.style.display = 'none';
+                sourceList.appendChild(item);
+            });
+            
+            // Distribute only items for the selected day
+            items.forEach(item => {
+                const labelText = item.getAttribute('data-dia'); // Ex: "Segunda - 08:00 às 08:50"
+                
+                if (labelText.startsWith(selected)) {
+                    const timeOnly = labelText.split(' - ')[1];
+                    const hourPrefix = parseInt(timeOnly.substring(0, 2));
+                    
+                    item.style.display = 'flex';
+                    item.style.alignItems = 'center';
+                    item.style.justifyContent = 'flex-start';
+                    
+                    const label = item.querySelector('label');
+                    label.textContent = timeOnly;
+                    
+                    if (hourPrefix >= 8 && hourPrefix < 14) {
+                        ulManha.appendChild(item);
+                    } else if (hourPrefix >= 14 && hourPrefix < 18) {
+                        ulTarde.appendChild(item);
+                    } else {
+                        ulNoite.appendChild(item);
+                    }
+                }
+            });
+        }
+
+        filtroDia.addEventListener('change', atualizarGrade);
+        atualizarGrade(); 
+
+        // Modal logic
+        const modal = document.getElementById('details-modal');
+        const closeModal = document.getElementById('close-modal');
+        const btnCloseModal = document.getElementById('btn-close-modal');
+        
+        document.querySelectorAll('.btn-details').forEach(button => {
+            button.addEventListener('click', function() {
+                document.getElementById('modal-lab').textContent = this.getAttribute('data-lab');
+                document.getElementById('modal-nome').textContent = this.getAttribute('data-nome');
+                document.getElementById('modal-colegiado').textContent = this.getAttribute('data-colegiado') || 'Não informado';
+                document.getElementById('modal-telefone').textContent = this.getAttribute('data-telefone') || 'Não informado';
+                document.getElementById('modal-tipo').textContent = this.getAttribute('data-tipo');
+                document.getElementById('modal-data').textContent = this.getAttribute('data-data');
+                
+                const rawHorarios = this.getAttribute('data-horarios');
+                const horariosContainer = document.getElementById('modal-horarios');
+                horariosContainer.innerHTML = '';
+                if (rawHorarios) {
+                    const list = rawHorarios.split(', ');
+                    list.forEach(h => {
+                        const div = document.createElement('div');
+                        div.style.padding = '0.2rem 0';
+                        div.textContent = h;
+                        horariosContainer.appendChild(div);
+                    });
+                } else {
+                    horariosContainer.textContent = 'Nenhum horário selecionado.';
+                }
+                
+                modal.style.display = 'flex';
+            });
+        });
+
+        function hideModal() {
+            modal.style.display = 'none';
+        }
+
+        if (closeModal) closeModal.addEventListener('click', hideModal);
+        if (btnCloseModal) btnCloseModal.addEventListener('click', hideModal);
+        window.addEventListener('click', function(event) {
+            if (event.target == modal) {
+                hideModal();
+            }
+        });
+    });
+</script>
+
+<!-- Modal de Detalhes -->
+<div id="details-modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 1rem; box-sizing: border-box;">
+    <div class="card glass-effect" style="width: 100%; max-width: 500px; padding: 2rem; border: 1px solid var(--border-color); border-radius: 16px; background: rgba(15, 23, 42, 0.95); animation: fadeIn 0.3s ease-out; margin: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+            <h3 style="color: var(--accent-color); margin: 0; font-size: 1.4rem;">🔎 Detalhes do Agendamento</h3>
+            <span id="close-modal" style="color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 1;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#aaa'">&times;</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 1rem; font-size: 0.95rem; text-align: left;">
+            <p style="margin: 0; color: #fff;"><strong>🏢 Laboratório:</strong> <span id="modal-lab" style="color: var(--accent-color); font-weight: bold;"></span></p>
+            <p style="margin: 0; color: #fff;"><strong>👤 Responsável:</strong> <span id="modal-nome"></span></p>
+            <p style="margin: 0; color: #fff;"><strong>🎓 Colegiado:</strong> <span id="modal-colegiado"></span></p>
+            <p style="margin: 0; color: #fff;"><strong>📞 Telefone:</strong> <span id="modal-telefone"></span></p>
+            <p style="margin: 0; color: #fff;"><strong>📅 Tipo:</strong> <span id="modal-tipo" style="text-transform: capitalize;"></span></p>
+            <p style="margin: 0; color: #fff;"><strong>🗓️ Data/Semestre:</strong> <span id="modal-data"></span></p>
+            <div style="margin: 0;">
+                <p style="margin: 0; color: #fff;"><strong>⏰ Horários Reservados:</strong></p>
+                <div id="modal-horarios" style="background: rgba(15, 23, 42, 0.4); padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border-color); max-height: 120px; overflow-y: auto; font-size: 0.85rem; margin-top: 0.5rem; color: #ccc;"></div>
+            </div>
+        </div>
+        <div style="text-align: right; margin-top: 1.5rem; display: flex; justify-content: flex-end;">
+            <button id="btn-close-modal" class="btn btn-secondary" style="padding: 0.6rem 1.5rem; font-weight: bold; background: #475569; border: none; color: white; border-radius: 8px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='#475569'">Fechar</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

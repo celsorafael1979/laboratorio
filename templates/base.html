@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LabScheduler{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>🔬 LabScheduler</h1>
+            </div>
+            <nav class="nav-menu" style="display: flex; flex-direction: column; height: calc(100% - 60px);">
+                {% if request.session.is_admin %}
+                <a href="{% url 'laboratorio_list' %}" class="nav-item {% if active_page == 'laboratorio' %}active{% endif %}">
+                    <span class="icon">🏢</span> Laboratórios
+                </a>
+                <a href="{% url 'semestre_list' %}" class="nav-item {% if active_page == 'semestre' %}active{% endif %}">
+                    <span class="icon">📅</span> Semestres
+                </a>
+                {% endif %}
+                <a href="{% url 'agendamento_create' %}" class="nav-item {% if active_page == 'agendamento' %}active{% endif %}">
+                    <span class="icon">📝</span> Agendar
+                </a>
+                
+                <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 0.5rem; width: 100%;">
+                    {% if request.session.is_admin %}
+                    <a href="{% url 'admin_logout' %}" class="nav-item" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2);">
+                        <span class="icon">🔓</span> Sair Admin
+                    </a>
+                    {% else %}
+                    <a href="{% url 'admin_login' %}" class="nav-item" style="color: #22c55e; border-color: rgba(34, 197, 94, 0.2);">
+                        <span class="icon">🔒</span> Área Restrita
+                    </a>
+                    {% endif %}
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <h2>{% block page_title %}Sistema de Agendamento de Laboratórios{% endblock %}</h2>
+            </header>
+
+            <div class="content-area">
+                {% if messages %}
+                <div class="messages-container">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>
