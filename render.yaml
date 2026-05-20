@@ -9,3 +9,7 @@ services:
         value: 3.12.4
       - key: DEBUG
         value: 'False'
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
