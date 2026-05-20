@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: laboratorio-agendamento
+    env: python
+    buildCommand: ./build.sh
+    startCommand: gunicorn core.wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.4
+      - key: DEBUG
+        value: 'False'
