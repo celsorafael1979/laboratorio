@@ -73,14 +73,18 @@ class Agendamento(models.Model):
     ]
 
     laboratorio = models.ForeignKey(Laboratorio, verbose_name='Laboratório', on_delete=models.CASCADE, related_name='agendamentos')
-    horarios = models.ManyToManyField(Horario, verbose_name='Horários', related_name='agendamentos')
     semestre = models.ForeignKey(Semestre, verbose_name='Semestre', on_delete=models.SET_NULL, null=True, blank=True, related_name='agendamentos')
+    horarios = models.ManyToManyField(Horario, verbose_name='Horários', related_name='agendamentos')
+    solicitou_exclusao = models.BooleanField('Solicitou Exclusão', default=False)
+
     nome = models.CharField('Nome', max_length=200)
     colegiado = models.CharField('Colegiado', max_length=200, blank=True, null=True)
     telefone = models.CharField('Telefone', max_length=20, blank=True, null=True)
     tipo = models.CharField('Tipo de Agendamento', max_length=10, choices=TIPO_CHOICES, default='unico')
     data_unica = models.DateField('Data (única)', blank=True, null=True)
     criado_em = models.DateTimeField('Criado em', auto_now_add=True)
+
+
 
     class Meta:
         verbose_name = 'Agendamento'

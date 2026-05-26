@@ -238,10 +238,22 @@
                                 onmouseout="this.style.background='#0ea5e9'">
                             Detalhes
                         </button>
-                        <form method="post" action="{% url 'agendamento_delete' ag.pk %}" style="display:inline; margin:0; padding:0;" onsubmit="return confirm('Deseja realmente excluir este agendamento?');">
-                            {% csrf_token %}
-                            <button type="submit" style="padding: 0.3rem 0.6rem; font-size: 0.75rem; background: #ef4444; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; transition: background 0.2s;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">Excluir</button>
-                        </form>
+{% if request.session.is_admin %}
+    <form method="post" action="{% url 'agendamento_delete' ag.pk %}" style="display:inline; margin:0; padding:0;" onsubmit="return confirm('Deseja realmente excluir este agendamento?');">
+        {% csrf_token %}
+        <button type="submit" style="padding: 0.3rem 0.6rem; font-size: 0.75rem; background: #ef4444; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; transition: background 0.2s;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">Excluir</button>
+    </form>
+{% else %}
+    {% if ag.solicitou_exclusao %}
+        <button type="button" disabled style="padding: 0.3rem 0.6rem; font-size: 0.75rem; background: #6b7280; border: none; border-radius: 4px; color: #d1d5db; cursor: not-allowed; font-weight: bold;">✓ Solicitação realizada</button>
+    {% else %}
+        <form method="post" action="{% url 'agendamento_delete' ag.pk %}" style="display:inline; margin:0; padding:0;">
+            {% csrf_token %}
+            <button type="submit" style="padding: 0.3rem 0.6rem; font-size: 0.75rem; background: #f59e0b; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; transition: background 0.2s;" onmouseover="this.style.background='#d97706'" onmouseout="this.style.background='#f59e0b'">Solicitar exclusão</button>
+        </form>
+    {% endif %}
+{% endif %}
+
                     </td>
                 </tr>
                 {% empty %}

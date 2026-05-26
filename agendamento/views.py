@@ -257,11 +257,47 @@ def agendamento_create(request):
     return render(request, 'agendamento/agendamento_form.html', context)
 
 
+def solicitacao_list(request):
+    if not request.session.get('is_admin'):
+        messages.error(request, 'Acesso restrito ao administrador.')
+        return redirect('agendamento_create')
+    solicitacoes = Agendamento.objects.filter(solicitou_exclusao=True).order_by('-criado_em')
+    return render(request, 'agendamento/solicitacao_list.html', {
+        'solicitacoes': solicitacoes,
+        'active_page': 'solicitacao',
+    })
+
+def solicitacao_aceitar(request, pk):
+    if not request.session.get('is_admin'):
+        messages.error(request, 'Acesso restrito ao administrador.')
+        return redirect('agendamento_create')
+    ag = get_object_or_404(Agendamento, pk=pk, solicitou_exclusao=True)
+    ag.delete()
+    messages.success(request, 'Solicitação aceita e agendamento removido.')
+    return redirect('solicitacao_list')
+
+def solicitacao_rejeitar(request, pk):
+    if not request.session.get('is_admin'):
+        messages.error(request, 'Acesso restrito ao administrador.')
+        return redirect('agendamento_create')
+    ag = get_object_or_404(Agendamento, pk=pk, solicitou_exclusao=True)
+    ag.solicitou_exclusao = False
+    ag.save()
+    messages.info(request, 'Solicitação rejeitada. Agendamento permanece ativo.')
+    return redirect('solicitacao_list')
+
+
+
+
 def agendamento_delete(request, pk):
     ag = get_object_or_404(Agendamento, pk=pk)
-    if request.method == 'POST':
+    if request.session.get('is_admin'):
         ag.delete()
         messages.success(request, 'Agendamento excluído com sucesso!')
+    else:
+        ag.solicitou_exclusao = True
+        ag.save()
+        messages.info(request, 'Solicitação de exclusão enviada. Um administrador irá analisar.')
     return redirect('agendamento_create')
 
 

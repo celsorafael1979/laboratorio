@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Solicitações de Exclusão - LabScheduler{% endblock %}
+{% block page_title %}Solicitações de Exclusão{% endblock %}
+{% block content %}
+
+<div style="padding: 1.5rem 0;">
+
+    {% if solicitacoes %}
+    <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+        <span style="font-size: 1.5rem;">⚠️</span>
+        <div>
+            <strong style="color: #f59e0b;">{{ solicitacoes|length }} solicitação(ões) pendente(s)</strong>
+            <p style="margin: 0; font-size: 0.875rem; color: var(--text-muted);">Analise cada solicitação e decida se aceita ou rejeita a exclusão.</p>
+        </div>
+    </div>
+
+    <div class="card" style="overflow: hidden; padding: 0;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: var(--bg-secondary); border-bottom: 2px solid var(--border-color);">
+                    <th style="padding: 0.875rem 1.25rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Nome</th>
+                    <th style="padding: 0.875rem 1.25rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Laboratório</th>
+                    <th style="padding: 0.875rem 1.25rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Tipo / Data</th>
+                    <th style="padding: 0.875rem 1.25rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Criado em</th>
+                    <th style="padding: 0.875rem 1.25rem; text-align: center; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ag in solicitacoes %}
+                <tr style="border-bottom: 1px solid var(--border-color); transition: background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
+                    <td style="padding: 1rem 1.25rem; font-weight: 500;">{{ ag.nome }}</td>
+                    <td style="padding: 1rem 1.25rem; color: var(--text-muted);">{{ ag.laboratorio.nome }}</td>
+                    <td style="padding: 1rem 1.25rem;">
+                        {% if ag.tipo == 'unico' %}
+                            <span style="background: rgba(14, 165, 233, 0.15); color: #0ea5e9; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;">📅 {{ ag.data_unica }}</span>
+                        {% else %}
+                            <span style="background: rgba(168, 85, 247, 0.15); color: #a855f7; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;">📆 Semestral</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem 1.25rem; color: var(--text-muted); font-size: 0.875rem;">{{ ag.criado_em|date:"d/m/Y H:i" }}</td>
+                    <td style="padding: 1rem 1.25rem; text-align: center;">
+                        <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                            <form method="post" action="{% url 'solicitacao_aceitar' ag.pk %}" style="display:inline;" onsubmit="return confirm('Confirmar exclusão do agendamento de {{ ag.nome }}?');">
+                                {% csrf_token %}
+                                <button type="submit"
+                                    style="padding: 0.4rem 0.9rem; font-size: 0.8rem; background: #22c55e; border: none; border-radius: 6px; color: white; cursor: pointer; font-weight: 600; transition: background 0.2s;"
+                                    onmouseover="this.style.background='#16a34a'"
+                                    onmouseout="this.style.background='#22c55e'">
+                                    ✓ Aceitar
+                                </button>
+                            </form>
+                            <form method="post" action="{% url 'solicitacao_rejeitar' ag.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit"
+                                    style="padding: 0.4rem 0.9rem; font-size: 0.8rem; background: #ef4444; border: none; border-radius: 6px; color: white; cursor: pointer; font-weight: 600; transition: background 0.2s;"
+                                    onmouseover="this.style.background='#dc2626'"
+                                    onmouseout="this.style.background='#ef4444'">
+                                    ✕ Rejeitar
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+    <div class="card" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
+        <h3 style="margin: 0 0 0.5rem;">Nenhuma solicitação pendente</h3>
+        <p style="margin: 0; font-size: 0.875rem;">Não há pedidos de exclusão de agendamento aguardando análise.</p>
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

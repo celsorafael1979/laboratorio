@@ -14,5 +14,8 @@ urlpatterns = [
     path('agendar/', views.agendamento_create, name='agendamento_create'),
     path('agendar/excluir/<int:pk>/', views.agendamento_delete, name='agendamento_delete'),
     path('admin-login/', views.admin_login, name='admin_login'),
+    path('solicitacoes/', views.solicitacao_list, name='solicitacao_list'),
+    path('solicitacoes/aceitar/<int:pk>/', views.solicitacao_aceitar, name='solicitacao_aceitar'),
+    path('solicitacoes/rejeitar/<int:pk>/', views.solicitacao_rejeitar, name='solicitacao_rejeitar'),
     path('admin-logout/', views.admin_logout, name='admin_logout'),
 ]

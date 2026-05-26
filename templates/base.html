@@ -22,6 +22,9 @@
                 <a href="{% url 'semestre_list' %}" class="nav-item {% if active_page == 'semestre' %}active{% endif %}">
                     <span class="icon">📅</span> Semestres
                 </a>
+                <a href="{% url 'solicitacao_list' %}" class="nav-item {% if active_page == 'solicitacao' %}active{% endif %}" style="color: #f59e0b; border-color: rgba(245, 158, 11, 0.3);">
+                    <span class="icon">🗑️</span> Excluir Agendamentos
+                </a>
                 {% endif %}
                 <a href="{% url 'agendamento_create' %}" class="nav-item {% if active_page == 'agendamento' %}active{% endif %}">
                     <span class="icon">📝</span> Agendar
