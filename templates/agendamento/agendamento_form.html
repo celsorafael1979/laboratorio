@@ -193,6 +193,30 @@
             {% if form.horarios.errors %}<span class="field-error">{{ form.horarios.errors.0 }}</span>{% endif %}
         </div>
 
+        {% if form.confirmar_sem_avulso.errors %}
+        <div class="form-group alert alert-warning field-error" style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); padding: 1.25rem; border-radius: 8px; margin-top: 1rem; margin-bottom: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; color: #f59e0b; font-weight: bold; margin-bottom: 0.5rem;">
+                <span style="font-size: 1.2rem;">⚠️</span>
+                <span>Atenção: Horário(s) Reservado(s)</span>
+            </div>
+            <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: #e2e8f0; line-height: 1.5;">
+                {{ form.confirmar_sem_avulso.errors.0 }}
+                <br>
+                Deseja confirmar a reserva do restante do semestre sem os dias avulsos que já estão reservados?
+            </p>
+            <div style="display: flex; align-items: center; gap: 0.75rem; background: rgba(0,0,0,0.2); padding: 0.75rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                {{ form.confirmar_sem_avulso }}
+                <label for="id_confirmar_sem_avulso" style="margin: 0; color: #fff; font-weight: 500; cursor: pointer; font-size: 0.9rem; user-select: none;">
+                    Sim, aceito reservar sem o dia avulso que já está reservado.
+                </label>
+            </div>
+        </div>
+        {% else %}
+        <div style="display: none;">
+            {{ form.confirmar_sem_avulso }}
+        </div>
+        {% endif %}
+
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">Salvar Agendamento</button>
         </div>
@@ -285,6 +309,8 @@
         const ulTarde = document.getElementById('ul-tarde');
         const ulNoite = document.getElementById('ul-noite');
 
+        const inputDataUnica = document.getElementById('id_data_unica');
+
         // Dynamic form field toggling
         const tipoRadios = document.querySelectorAll('input[name="tipo"]');
         const groupData = document.getElementById('group-data');
@@ -304,16 +330,51 @@
         tipoRadios.forEach(radio => radio.addEventListener('change', toggleTipoFields));
         toggleTipoFields(); // Run on load
 
+        function ajustarFiltroPorData() {
+            if (!inputDataUnica) return;
+            const dateVal = inputDataUnica.value;
+            if (dateVal) {
+                const parts = dateVal.split('-');
+                if (parts.length === 3) {
+                    const year = parseInt(parts[0], 10);
+                    const month = parseInt(parts[1], 10) - 1;
+                    const day = parseInt(parts[2], 10);
+                    const localDate = new Date(year, month, day);
+                    const dayOfWeek = localDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+                    
+                    const diasSemana = {
+                        1: 'Segunda',
+                        2: 'Terça',
+                        3: 'Quarta',
+                        4: 'Quinta',
+                        5: 'Sexta',
+                        6: 'Sábado'
+                    };
+                    
+                    if (dayOfWeek in diasSemana) {
+                        filtroDia.value = diasSemana[dayOfWeek];
+                    }
+                }
+            }
+        }
+
+        if (inputDataUnica) {
+            inputDataUnica.addEventListener('change', function() {
+                ajustarFiltroPorData();
+                atualizarGrade();
+            });
+        }
+
         function atualizarGrade() {
             const selected = filtroDia.value;
             
-            // Move all items back to hidden source container
+            // 1. Mover todos para o container oculto (SEM desmarcar ainda)
             items.forEach(item => {
                 item.style.display = 'none';
                 sourceList.appendChild(item);
             });
             
-            // Distribute only items for the selected day
+            // 2. Exibir os do dia selecionado; desmarcar os dos outros dias
             items.forEach(item => {
                 const labelText = item.getAttribute('data-dia'); // Ex: "Segunda - 08:00 às 08:50"
                 
@@ -335,12 +396,33 @@
                     } else {
                         ulNoite.appendChild(item);
                     }
+                } else {
+                    // Desmarcar checkboxes de outros dias (não serão enviados)
+                    const checkbox = item.querySelector('input[type="checkbox"]');
+                    if (checkbox) checkbox.checked = false;
                 }
             });
         }
 
+        // Detecta qual dia já está pré-selecionado (após recarregar com erro do Django)
+        // Útil para agendamentos semestrais onde não há data_unica para inferir o dia
+        function detectarDiaPreSelecionado() {
+            for (const item of items) {
+                const cb = item.querySelector('input[type="checkbox"]');
+                if (cb && cb.checked) {
+                    const labelText = item.getAttribute('data-dia'); // "Sexta-feira - 08:00 às 08:50"
+                    const diaCompleto = labelText.split(' - ')[0]; // "Sexta-feira"
+                    const dia = diaCompleto.split('-')[0]; // "Sexta"
+                    filtroDia.value = dia;
+                    break;
+                }
+            }
+        }
+
+        ajustarFiltroPorData();       // Para agendamento único: ajusta filtro pela data escolhida
+        detectarDiaPreSelecionado();  // Para semestral/recarregamento: ajusta filtro pelos horários pré-marcados
         filtroDia.addEventListener('change', atualizarGrade);
-        atualizarGrade(); 
+        atualizarGrade();
 
         // Modal logic
         const modal = document.getElementById('details-modal');

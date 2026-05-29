@@ -32,6 +32,11 @@ class SemestreForm(forms.ModelForm):
         return cleaned_data
 
 class AgendamentoForm(forms.ModelForm):
+    confirmar_sem_avulso = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+
     class Meta:
         model = Agendamento
         fields = ['laboratorio', 'nome', 'colegiado', 'telefone', 'tipo', 'data_unica', 'semestre', 'horarios']
@@ -91,18 +96,27 @@ class AgendamentoForm(forms.ModelForm):
                         raise forms.ValidationError(f'O horário {h.hora_inicio.strftime("%H:%M")} já está ocupado por um agendamento semestral neste período.')
                     
         if tipo == 'semestral' and semestre and horarios and laboratorio:
+            conflitos_avulsos = []
             for h in horarios:
                 # 1. Verifica se já existe outro agendamento semestral
                 if Agendamento.objects.filter(laboratorio=laboratorio, horarios=h, semestre=semestre, tipo='semestral').exists():
                     raise forms.ValidationError(f'O horário {h} já está reservado de forma semestral para este laboratório no semestre {semestre}.')
                 
                 # 2. Verifica se já existem agendamentos únicos (avulsos) conflitando dentro das datas deste semestre
-                if Agendamento.objects.filter(
+                unicos_conflito = Agendamento.objects.filter(
                     laboratorio=laboratorio,
                     horarios=h,
                     tipo='unico',
                     data_unica__range=(semestre.data_inicio, semestre.data_fim)
-                ).exists():
-                    raise forms.ValidationError(f'O horário {h} já possui agendamentos avulsos cadastrados para datas dentro deste semestre.')
+                )
+                if unicos_conflito.exists():
+                    for uc in unicos_conflito:
+                        conflitos_avulsos.append((h, uc.data_unica))
+            
+            if conflitos_avulsos:
+                confirmar = cleaned.get('confirmar_sem_avulso')
+                if not confirmar:
+                    conflitos_str = "; ".join([f"{h.hora_inicio.strftime('%H:%M')} no dia {dt.strftime('%d/%m/%Y')}" for h, dt in conflitos_avulsos])
+                    self.add_error('confirmar_sem_avulso', f'Já existem reservas avulsas no semestre para o(s) horário(s): {conflitos_str}.')
 
         return cleaned
